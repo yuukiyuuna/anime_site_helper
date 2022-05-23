@@ -1,0 +1,15 @@
+{
+  "proxy": "http://127.0.0.1:1081",
+  "website": {
+    "yurifans": [
+      {
+      "user": "xxxx",
+      "password": "xxxx"
+    },
+      {
+      "user": "xxxx",
+      "password": "xxxx"
+    }
+    ]
+  }
+}
