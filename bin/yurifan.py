@@ -165,7 +165,7 @@ class yurifan:
             # 创建文件夹
             if not os.path.exists(dir_title):
                 os.mkdir(dir_title)
-                open(os.path.join(dir_title, 'info.txt'), 'w', encoding='GBK').write('标题：' + page_info['title'])
+                open(os.path.join(dir_title, 'info.txt'), 'w', encoding='utf-8').write('标题：' + page_info['title'])
 
             # 下载图片
             # 类型为1，包不含分集的下载
@@ -173,19 +173,20 @@ class yurifan:
                 pics = []
                 for pic_url in page_info['pictures']['data']:
                     pics.append(pic_url)
+                logger.debug('未隐藏部分：%s' % str(pics))
 
                 # 获取隐藏内容的图片的url，并加入到总列表中
                 data = self.get_hidden_content(url)
-                print(data)
                 if data['mode'] == 1:
                     for pic_url in data['data']:
                         pics.append(pic_url)
-                print(pic_url)
+                    logger.debug('总下载列表：%s' % str(pics))
 
                 page_count = 1
                 for pic_url in pics:
                     req = self.req_s.get(pic_url, headers=self.requests_headers(referer=url)['login_headers'])
                     logger.info('正在下载第%d张图片' % page_count)
+                    logger.debug('第%d张图片url为：%s' %(page_count, req.request.url))
                     open(os.path.join(dir_title, str(page_count).zfill(3)) + '.jpg', 'wb').write(req.content)
 
                     page_count += 1
@@ -274,7 +275,7 @@ class yurifan:
                 logger.info('支付积分购买完成')
 
 
-
+    # 获取隐藏内容文本
     def get_hidden_content(self, page_url):
         path = r'wp-json/b2/v1/getHiddenContent'
         url = self.yurifan_url + path
@@ -292,15 +293,10 @@ class yurifan:
             self.get_hidden_content(page_url)
 
         except Exception:
-            None
-
-        try:
             logger.info('该内容已经购买过')
             yurifan_tools = yurifan_online_manga_tools()
             data = yurifan_tools.pictuers_split(str(req.text).replace(r'\"', '"').replace(r'\/', '/')
                                                 .replace(r'\\', '\\').encode('utf-8').decode('unicode_escape'))
             return data
-        except Exception:
-            None
 
 

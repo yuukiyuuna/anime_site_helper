@@ -61,13 +61,18 @@ class yurifan_online_manga_tools:
     # 按集数来分出
     # 通过bs4传入content
     def pictuers_split(self, content):
-        pics = []
-
+        pics_fake = []
         # 先检查是否有集数的字样
         if not re.findall('第[0-9]+話', str(content)) or re.findall('第[0-9]+话', str(content)) or re.findall('第[0-9]+章', str(content)):
+            pics = []
+
             logger.debug('未检索出分集关键字')
-            pics = re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', str(content))
-            logger.debug(pics)
+            pics_fake = re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', str(content))
+            # 遍历网页可能会造成图片地址重复，再此添加重复项过滤
+            for i in pics_fake:
+                if i not in pics:
+                    pics.append(i)
+            logger.debug('隐藏部分内容：%s' % str(pics))
             return {"mode": 1, "data": pics}
         else:
             logger.debug('已在内容中检索出分集关键字')
@@ -78,33 +83,44 @@ class yurifan_online_manga_tools:
                 if re.findall('第[0-9]+話', i) or re.findall('第[0-9]+话', i) or re.findall('第[0-9]+章', i):
                     try:
                         linshi = []
-                        for ii in pics:
+                        for ii in pics_fake:
                             linshi.append(ii[0])
                         if re.findall('第[0-9]+話', i)[0] not in linshi:
-                            pics.append([re.findall('第[0-9]+話', i)[0]])
+                            pics_fake.append([re.findall('第[0-9]+話', i)[0]])
                             count += 1
                     except Exception as e:
                         None
                     try:
                         linshi = []
-                        for ii in pics:
+                        for ii in pics_fake:
                             linshi.append(ii[0])
                         if re.findall('第[0-9]+话', i)[0] not in linshi:
-                            pics.append([re.findall('第[0-9]+话', i)[0]])
+                            pics_fake.append([re.findall('第[0-9]+话', i)[0]])
                             count += 1
                     except Exception as e:
                         None
                     try:
                         linshi = []
-                        for ii in pics:
+                        for ii in pics_fake:
                             linshi.append(ii[0])
                         if re.findall('第[0-9]+章', i)[0] not in linshi:
-                            pics.append([re.findall('第[0-9]+章', i)[0]])
+                            pics_fake.append([re.findall('第[0-9]+章', i)[0]])
                             count += 1
                     except Exception as e:
                         None
 
                 if re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', i):
-                    pics[count - 1].append(re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', i)[0])
+                    pics_fake[count - 1].append(re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', i)[0])
+
+            # 遍历网页可能会造成图片地址重复，再此添加重复项过滤
+            pics = [[]]
+            count = 0
+            for i in pics_fake:
+                for ii in i:
+                    if ii not in pics[count]:
+                        pics[count].append(ii)
+                count += 1
+
+
             logger.debug(pics)
             return {"mode": 2, "data": pics}

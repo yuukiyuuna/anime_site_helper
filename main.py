@@ -10,14 +10,14 @@ def all_conf():
 
 if __name__ == '__main__':
 
-    for i in all_conf()['website']['yurifans']:
-        a = yurifan()
-        a.sgin(user=i['user'], passwd=i['password'])
-        del a
+    # for i in all_conf()['website']['yurifans']:
+    #     a = yurifan()
+    #     a.sgin(user=i['user'], passwd=i['password'])
+    #     del a
 
 
-    # a = yurifan()
-    # a.download_page_pic(r'https://yuri.website/33271/')
+    a = yurifan()
+    a.download_page_pic(r'https://yuri.website/63118/')
 
 
 
