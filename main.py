@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
 
     a = yurifan()
-    a.download_page_pic(r'https://yuri.website/63118/')
+    a.download_page_pic(r'https://yuri.website/47975/')
 
 
 

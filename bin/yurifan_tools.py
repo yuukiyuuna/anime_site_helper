@@ -61,13 +61,14 @@ class yurifan_online_manga_tools:
     # 按集数来分出
     # 通过bs4传入content
     def pictuers_split(self, content):
+        logger.debug('开始处理返回的gethiddencontent内容: %s' % str(content))
         pics_fake = []
         # 先检查是否有集数的字样
         if not re.findall('第[0-9]+話', str(content)) or re.findall('第[0-9]+话', str(content)) or re.findall('第[0-9]+章', str(content)):
             pics = []
 
             logger.debug('未检索出分集关键字')
-            pics_fake = re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', str(content))
+            pics_fake = re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?\.jpg)"', str(content))
             # 遍历网页可能会造成图片地址重复，再此添加重复项过滤
             for i in pics_fake:
                 if i not in pics:
@@ -88,7 +89,7 @@ class yurifan_online_manga_tools:
                         if re.findall('第[0-9]+話', i)[0] not in linshi:
                             pics_fake.append([re.findall('第[0-9]+話', i)[0]])
                             count += 1
-                    except Exception as e:
+                    except Exception:
                         None
                     try:
                         linshi = []
@@ -97,7 +98,7 @@ class yurifan_online_manga_tools:
                         if re.findall('第[0-9]+话', i)[0] not in linshi:
                             pics_fake.append([re.findall('第[0-9]+话', i)[0]])
                             count += 1
-                    except Exception as e:
+                    except Exception:
                         None
                     try:
                         linshi = []
@@ -106,16 +107,19 @@ class yurifan_online_manga_tools:
                         if re.findall('第[0-9]+章', i)[0] not in linshi:
                             pics_fake.append([re.findall('第[0-9]+章', i)[0]])
                             count += 1
-                    except Exception as e:
+                    except Exception:
                         None
+
+
 
                 if re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', i):
                     pics_fake[count - 1].append(re.findall(r'src="(https://yuri.website/wp-content/uploads/.*?)"', i)[0])
 
             # 遍历网页可能会造成图片地址重复，再此添加重复项过滤
-            pics = [[]]
+            pics = []
             count = 0
             for i in pics_fake:
+                pics.append([i[0]])
                 for ii in i:
                     if ii not in pics[count]:
                         pics[count].append(ii)
