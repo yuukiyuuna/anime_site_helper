@@ -54,7 +54,6 @@ class copymanga():
                 time.sleep(0.5)
 
 
-            break
 
 
 
@@ -119,7 +118,3 @@ class copymanga():
         req = requests.get(url, headers=self.headers, verify=False)     # 关闭证书验证
         open(filepath, 'wb').write(req.content)
 
-
-
-a = copymanga()
-a.download('https://www.copymanga.org/comic/kuangduzhiyuanshuang/')
