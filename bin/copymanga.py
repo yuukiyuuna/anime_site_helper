@@ -139,6 +139,11 @@ class copymanga():
 
     # 下载漫画
     def download_page(self, url, filepath):
-        req = requests.get(url, headers=self.headers, verify=False)     # 关闭证书验证
-        open(filepath, 'wb').write(req.content)
+        try:
+            req = requests.get(url, headers=self.headers, verify=False)  # 关闭证书验证
+            open(filepath, 'wb').write(req.content)
+        except Exception as e:
+            logger.warning('下载图片失败，一秒后重试')
+            logger.error(e)
+            self.download_page(url=url, filepath=filepath)
 
