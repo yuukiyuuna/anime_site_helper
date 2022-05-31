@@ -58,7 +58,7 @@ class copymanga():
                 manga_page_dir = os.path.join(manga_zhangjie_dir, str(page[1]).zfill(4) + r'.jpg')
                 if os.path.exists(manga_page_dir):
                     continue
-                logger.info('开始下载图片 %s' % page[0])
+                logger.info('开始下载 %s 中的第 %d 图片' % (manga[0], page[1]))
                 self.download_page(url=page[0], filepath=manga_page_dir)
 
                 time.sleep(1)
