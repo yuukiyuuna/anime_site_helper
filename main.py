@@ -2,6 +2,7 @@
 
 import json
 from bin.yurifan import yurifan
+from bin.copymanga import copymanga
 
 
 def all_conf():
@@ -16,9 +17,12 @@ if __name__ == '__main__':
     #     del a
 
 
-    a = yurifan()
-    a.download_page_pic(r'https://yuri.website/47975/')
+    # a = yurifan()
+    # a.download_page_pic(r'https://yuri.website/47975/')
 
+
+    a = copymanga()
+    a.download(url=r'https://www.copymanga.org/comic/kuangduzhiyuanjia', output_dir=r'F:\linshi')
 
 
 

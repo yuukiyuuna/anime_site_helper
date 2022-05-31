@@ -19,7 +19,7 @@ class copymanga():
         }
         self.api_url = r'https://api.copymanga.org/'
 
-    def download(self, url):
+    def download(self, url, output_dir=None):
         if url.endswith('/'):
             manga_name = url.split('/')[-2]
         else:
@@ -31,14 +31,23 @@ class copymanga():
         logger.debug(mangas_zhangjie)
 
         # 创建漫画文件夹
-        if not os.path.exists(manga_name):
-            os.mkdir(manga_name)
+        if output_dir is not None:      # 若指定了输出文件夹
+            manga_dir = os.path.join(output_dir, manga_name)
+            if not os.path.exists(manga_dir):
+                os.mkdir(manga_dir)
+
+        else:                           # 若未指定输出文件夹
+            manga_dir = os.path.join(os.path.split(os.path.realpath(__file__))[0], manga_name)
+            if not os.path.exists(manga_dir):
+                os.mkdir(manga_dir)
+
 
         # 获取每个章节里的漫画下载地址并下载
         for manga in mangas_zhangjie:
             # 检查章节文件夹是否存在
-            if not os.path.exists(os.path.join(manga_name, manga[0])):
-                os.mkdir(os.path.join(manga_name, manga[0]))
+            manga_zhangjie_dir = os.path.join(manga_dir, manga[0])
+            if not os.path.exists(manga_zhangjie_dir):
+                os.mkdir(manga_zhangjie_dir)
 
             # 获取章节内图片url
             page_info = self.get_chapter2(manga_name=manga_name, zhangjie_uuid=manga[1])
@@ -46,12 +55,13 @@ class copymanga():
 
             # 下载图片
             for page in page_info:
+                manga_page_dir = os.path.join(manga_zhangjie_dir, str(page[1]).zfill(4) + r'.jpg')
+                if os.path.exists(manga_page_dir):
+                    continue
                 logger.info('开始下载图片 %s' % page[0])
-                print(page)
-                self.download_page(url=page[0], filepath=os.path.join(os.path.join(manga_name, manga[0]),
-                                                                 str(page[1]).zfill(4) + r'.jpg'))
+                self.download_page(url=page[0], filepath=manga_page_dir)
 
-                time.sleep(0.5)
+                time.sleep(1)
 
 
 
@@ -89,28 +99,42 @@ class copymanga():
         if req.status_code == 200:
             if req.json()['code'] == 200:
                 logger.info('章节图片内容获取成功，共计 %d 张' % len(req.json()['results']['chapter']['contents']))
+
+                # 获取图片url
+                pages = []
+                for page in req.json()['results']['chapter']['contents']:
+                    pages.append([page['url']])
+
+                # words字段与url字段对应
+                if len(req.json()['results']['chapter']['contents']) == len(req.json()['results']['chapter']['words']):
+                    logger.debug('contents中url数量与words数量一致，按words顺序命名')
+                    for i in range(0, len(req.json()['results']['chapter']['words'])):
+                        pages[i].append(req.json()['results']['chapter']['words'][i])
+                else:
+                    logger.debug('contents中url数量与words数量不一致，按url顺序命名')
+                    for i in range(0, len(req.json()['results']['chapter']['contents'])):
+                        pages[i].append(i)
+
+                return pages
+
             else:
-                logger.error('章节列表获取失败')
-                logger.error(req.text)
+                logger.error('章节列表获取失败，请求url：%s' % req.request.url)
+                logger.error('网页相应：%d' % req.status_code)
+                logger.error(req.content)
+
+        elif req.status_code == 502:        # 如果出现502，则重试（网页偶尔会出现这情况）
+            logger.warning('请求 %s 出现502响应，开始重试' % req.request.url)
+            self.get_chapter2(manga_name=manga_name, zhangjie_uuid=zhangjie_uuid)
+
         else:
-            logger.error('章节列表获取失败')
-            logger.error(req.text)
+            logger.error('章节列表获取失败，请求url：%s' % req.request.url)
+            logger.error('网页相应：%d' % req.status_code)
+            logger.error(req.content)
 
-        pages = []
-        for page in req.json()['results']['chapter']['contents']:
-            pages.append([page['url']])
 
-        # words字段与url字段对应
-        if len(req.json()['results']['chapter']['contents']) == len(req.json()['results']['chapter']['words']):
-            logger.debug('contents中url数量与words数量一致，按words顺序命名')
-            for i in range(0, len(req.json()['results']['chapter']['words'])):
-                pages[i].append(req.json()['results']['chapter']['words'][i])
-        else:
-            logger.debug('contents中url数量与words数量不一致，按url顺序命名')
-            for i in range(0, len(req.json()['results']['chapter']['contents'])):
-                pages[i].append(i)
 
-        return pages
+
+
 
 
     # 下载漫画
