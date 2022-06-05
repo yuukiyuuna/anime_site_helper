@@ -50,7 +50,7 @@ class copymanga():
                 os.mkdir(manga_zhangjie_dir)
 
             # 获取章节内图片url
-            page_info = self.get_chapter2(manga_name=manga_name, zhangjie_uuid=manga[1])
+            page_info = self.get_chapter2(manga_name=manga_name, zhangjie_uuid=manga[1], zhangjie_name=manga[0])
             logger.debug(page_info)
 
             # 下载图片
@@ -91,14 +91,14 @@ class copymanga():
 
 
     # 获取章节内列表
-    def get_chapter2(self, manga_name, zhangjie_uuid, zhangjie_id=None):
+    def get_chapter2(self, manga_name, zhangjie_uuid, zhangjie_name=''):
         path = r'api/v3/comic/%s/chapter2/%s?platform=3' % (manga_name, zhangjie_uuid)
         url = self.api_url + path
 
         req = requests.get(url, headers=self.headers)
         if req.status_code == 200:
             if req.json()['code'] == 200:
-                logger.info('章节图片内容获取成功，共计 %d 张' % len(req.json()['results']['chapter']['contents']))
+                logger.info('%s 内图片内容获取成功，共计 %d 张' % (zhangjie_name, len(req.json()['results']['chapter']['contents'])))
 
                 # 获取图片url
                 pages = []
