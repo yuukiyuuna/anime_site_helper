@@ -92,10 +92,11 @@ if __name__ == '__main__':
     chat_id = -1001592534864
 
     list, last_update_time = abema()
+    for i in list:
+        asyncio.run(sendmessage(token, chat_id, i))
+        time.sleep(random.randint(2, 5))
+
     json_data = json.loads(open('../data/result.json', 'r', encoding='utf-8').read())
     json_data['abema']['last_update_time'] = last_update_time
     open('../data/result.json', 'w', encoding='utf-8').write(json.dumps(json_data))
 
-    for i in list:
-        asyncio.run(sendmessage(token, chat_id, i))
-        time.sleep(random.randint(2, 5))
