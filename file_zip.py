@@ -15,7 +15,6 @@ def zip_file(src_dir, save_name='default', save_dir='./'):
             zip_name = os.path.join(save_dir, src_dir + '.zip')
         else:
             zip_name = os.path.join(save_dir, save_name + '.zip')
-    print(zip_name)
 
     z = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
     for dirpath, dirnames, filenames in os.walk(src_dir):
