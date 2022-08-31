@@ -1,8 +1,11 @@
 # -*- coding=utf-8 -*-
 
 import json
+import threading
+
 from bin.yurifan import yurifan
 from bin.copymanga import copymanga
+from anime_message.japaneseasmr import japaneseasmr_tools
 
 
 def all_conf():
@@ -21,8 +24,10 @@ if __name__ == '__main__':
     # a.download_page_pic(r'https://yuri.website/47975/')
 
 
-    a = copymanga()
-    a.download(url=r'https://www.copymanga.org/comic/kuangduzhiyuanjia', output_dir=r'F:\linshi')
+    # a = copymanga()
+    # a.download(url=r'https://www.copymanga.org/comic/kuangduzhiyuanjia', output_dir=r'F:\linshi')
 
 
-
+    global_lock = threading.Lock()
+    a = japaneseasmr_tools(lock=global_lock)
+    print(a.message())

@@ -28,12 +28,12 @@ def zip_file(src_dir, save_name='default', save_dir='./'):
 
 
 
-dir = r'F:\linshi\test'
+dir = r'F:\linshi\dianjuren'
 
 files = os.listdir(dir)
 
 for file in files:
-    zip_file(os.path.join(dir, file), save_name=file, save_dir=dir)
+    zip_file(os.path.join(dir, file), save_name=file, save_dir='E:\临时\电锯人')
     # os.rename(file + r'.zip', file + r'.cbz')
 
 
