@@ -1,9 +1,9 @@
 # -*- coding=utf-8 -*-
-import requests, datetime, json, time, random, threading
+import requests, datetime, json, time, random, threading, os
 from filelock import FileLock
 from loguru import logger
 from bs4 import BeautifulSoup
-from bin.telegram import telegram_tools
+from bin.telegram_tools import telegram_tool
 
 
 class japaneseasmr_tools():
@@ -13,7 +13,14 @@ class japaneseasmr_tools():
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
         }
         self.result_json_path = './data/result.json'
+        self.asmr_json_path = './data/japaneseasmr.logs'
         self.lock = lock
+        # 判断文件是否存在
+        if not os.path.exists(self.asmr_json_path):
+            logger.warning('data/japaneseasmr.logs 文件不存在，已自动创建')
+            json_data = r'{"rj_code_list": [], "data": {}}'
+            open(self.asmr_json_path, 'w', encoding='utf-8').write(json_data)
+            del json_data
 
     def get_content_info(self):
         print('待写')
@@ -31,10 +38,9 @@ class japaneseasmr_tools():
         # 获取内容
         count = 1
         message = []  # 存放待发送的消息数据
-        info_disc = []
+        info_disc_list = []
         final_signal = True  # 查到有日期等于或小于 result.json的日期则变为false退出请求网页
         new_last_update_time = last_update_time
-
         # 开始获取内容并生成要发送的消息
         while final_signal:
             path = '/page/%d/' % count
@@ -63,8 +69,9 @@ class japaneseasmr_tools():
 %s
 %s''' % (cover_url, title, cv, rj_code, page_url)
                     message.append(msg)
-                    info_disc.append(
-                        {'cover': cover_url, 'title': title, 'cv': cv, 'rj_code': rj_code, 'page_url': page_url})
+                    info_disc_list.append(
+                        {'cover': cover_url, 'title': title, 'cv': cv.split(':')[1].strip(),
+                         'rj_code': rj_code.split(':')[1].strip(), 'page_url': page_url})
                     if upload_date > new_last_update_time:
                         new_last_update_time = upload_date
                 else:
@@ -84,25 +91,38 @@ class japaneseasmr_tools():
         # 删除不用的函数释放内存
         del path, soup, info, upload_date, page_url, cover_url, title, cv, rj_code, \
             last_update_time, final_signal, count
-        logger.info('本次共更新 %d 个作品' % len(info_disc))
-        logger.debug(info_disc)
+        if len(info_disc_list) > 0:
+            logger.info('本次共更新 %d 个作品' % len(info_disc_list))
+            logger.debug(info_disc_list)
+        else:
+            logger.info('未查到作品更新')
+
+        if len(info_disc_list) > 0:
+            # 将收集到的信息保存至文件中
+            file_data_json = json.loads(open(self.asmr_json_path, 'r', encoding='utf-8').read())
+            for info in info_disc_list:
+                if info['rj_code'] not in file_data_json['rj_code_list']:
+                    file_data_json['rj_code_list'].append(info['rj_code'])
+                    file_data_json['data'][info['rj_code']] = info
+            open(self.asmr_json_path, 'w', encoding='utf-8').write(json.dumps(file_data_json))
+            del file_data_json, info_disc_list, info
 
         # 发送telegram消息
-        telegram_api = telegram_tools(self.lock)
-        telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown',))
+        telegram_api = telegram_tool(self.lock)
+        # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
+        telegram_api.send(message=message, parse_mode='markdown')
 
-        if len(message) > 0:
-            telegram_send.start()  # 子线程开始执行
-        else:
-            logger.info('未查询到新内容')
-            del telegram_api
+        # if len(message) > 0:
+        #     telegram_send.start()  # 子线程开始执行
+        # else:
+        #     logger.info('未查询到新内容')
 
-        # 将收集到的信息保存至文件中
-        asmr_json_path = '../data/japaneseasmr.logs'
+        # if telegram_api.is_alive() is True:
+        #     telegram_api.join()
+        #     del telegram_api
 
-        if telegram_send.is_alive():
-            telegram_send.join()
 
-        return info_disc
+
+
 
 
