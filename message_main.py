@@ -10,6 +10,7 @@ def japaneseasmr_website(lock):
         logger.info('japaneseasmr执行成功')
     except Exception as e:
         logger.error(e)
+    del japaneseasmr
     time.sleep(86400)
 
 

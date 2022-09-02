@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-import requests, datetime, json, time, random, threading, os
+import requests, datetime, json, os
 from filelock import FileLock
 from loguru import logger
 from bs4 import BeautifulSoup
@@ -108,8 +108,8 @@ class japaneseasmr_tools():
             del file_data_json, info_disc_list, info
 
         # 发送telegram消息
-        threading_lock.acquire()
-        telegram_api = telegram_tool(self.lock)
+        self.lock.acquire()
+        telegram_api = telegram_tool()
         # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
         telegram_api.send(message=message, parse_mode='markdown')
 
@@ -121,7 +121,7 @@ class japaneseasmr_tools():
         # if telegram_api.is_alive() is True:
         #     telegram_api.join()
         #     del telegram_api
-        threading_lock.release()
+        self.lock.release()
 
 
 
