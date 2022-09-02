@@ -5,11 +5,10 @@ from loguru import logger
 
 
 class telegram_tool(threading.Thread):
-    def __init__(self, lock=None):
+    def __init__(self):
         config_json = json.loads(open('./config.json', 'r', encoding='utf-8').read())['telegram']
         self.token = config_json['token']
         self.chat_id = config_json['chat_id']
-        self.lock = lock
         del config_json
 
     async def sendmessage(self, text, parse_mode=None):
@@ -23,8 +22,6 @@ class telegram_tool(threading.Thread):
 
 
     def send(self, message, parse_mode=None):
-        if self.lock is not None:
-            self.lock.acquire()
         if type(message).__name__ == 'list':
             for msg in message:
                 asyncio.run(self.sendmessage(text=msg, parse_mode=parse_mode))
@@ -34,5 +31,3 @@ class telegram_tool(threading.Thread):
         else:
             logger.warning('未定义格式')
             logger.warning(message)
-        if self.lock is not None:
-            self.lock.release()

@@ -25,7 +25,7 @@ class japaneseasmr_tools():
     def get_content_info(self):
         print('待写')
 
-    def message(self):
+    def message(self, threading_lock=None):
         with open(self.result_json_path, 'r', encoding='utf-8') as f:  # 设置文件锁
             with FileLock(self.result_json_path + '.lock'):
                 json_content = json.loads(f.read())
@@ -108,6 +108,7 @@ class japaneseasmr_tools():
             del file_data_json, info_disc_list, info
 
         # 发送telegram消息
+        threading_lock.acquire()
         telegram_api = telegram_tool(self.lock)
         # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
         telegram_api.send(message=message, parse_mode='markdown')
@@ -120,6 +121,7 @@ class japaneseasmr_tools():
         # if telegram_api.is_alive() is True:
         #     telegram_api.join()
         #     del telegram_api
+        threading_lock.release()
 
 
 
