@@ -200,6 +200,9 @@ class copymanga():
                     if int(os.path.getsize(filepath)) != int(req.headers.get('content-length')):
                         logger.warning('下载图片失败')
                         self.download_page(url=url, filepath=filepath)
+                else:
+                    logger.warning('文件不存在，重新下载')
+                    self.download_page(url=url, filepath=filepath)
             else:
                 logger.warning('下载图片失败，返回码 %d' %req.status_code)
                 self.download_page(url=url, filepath=filepath)
