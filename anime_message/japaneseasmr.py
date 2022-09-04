@@ -26,12 +26,10 @@ class japaneseasmr_tools():
         print('待写')
 
     def message(self, threading_lock=None):
-        with open(self.result_json_path, 'r', encoding='utf-8') as f:  # 设置文件锁
-            with FileLock(self.result_json_path + '.lock'):
-                json_content = json.loads(f.read())
-                f.close()
+        with FileLock(self.result_json_path + '.lock'):         # 设置文件锁
+            json_content = json.loads(open(self.result_json_path, 'r', encoding='utf-8').read())
         # json_content = json.loads(open('../data/result.json', 'r', encoding='utf-8').read())
-        logger.info('最后检测时间为：%s' % json_content['japaneseasmr']['last_update_time'])
+        logger.info('读取配置文件成功， 最后检测时间为：%s' % json_content['japaneseasmr']['last_update_time'])
         last_update_time = datetime.datetime.strptime(json_content['japaneseasmr']['last_update_time'], '%Y-%m-%d')
         del json_content
 
@@ -80,13 +78,12 @@ class japaneseasmr_tools():
             count += 1
 
         # 更新文件
-        lock = FileLock(self.result_json_path + '.lock')
-        with lock:
+        with FileLock(self.result_json_path + '.lock'):
             json_content = json.loads(open(self.result_json_path, 'r', encoding='utf-8').read())
             json_content['japaneseasmr']['last_update_time'] = datetime.datetime.strftime(new_last_update_time,
                                                                                           '%Y-%m-%d')
             open(self.result_json_path, 'w', encoding='utf-8').write(json.dumps(json_content))
-        del lock, json_content
+        del json_content
 
         # 删除不用的函数释放内存
         del path, soup, info, upload_date, page_url, cover_url, title, cv, rj_code, \
@@ -109,9 +106,13 @@ class japaneseasmr_tools():
 
         # 发送telegram消息
         self.lock.acquire()
-        telegram_api = telegram_tool()
-        # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
-        telegram_api.send(message=message, parse_mode='markdown')
+        try:
+            telegram_api = telegram_tool()
+            # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
+            telegram_api.send(message=message, parse_mode='markdown')
+        except Exception as e:
+            logger.error('japaneseasmr 发送消息失败')
+            logger.error(e)
 
         # if len(message) > 0:
         #     telegram_send.start()  # 子线程开始执行
