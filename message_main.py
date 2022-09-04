@@ -2,7 +2,8 @@
 import time, threading
 from loguru import logger
 from anime_message.japaneseasmr import japaneseasmr_tools
-from anime_message.yurifans import yurifans
+from anime_message.yurifans import yurifans_tools
+from anime_message.abema import abema_tools
 
 def japaneseasmr_website(lock):
     while True:
@@ -19,15 +20,25 @@ def japaneseasmr_website(lock):
 
 def yurifans_website(lock):
     while True:
-        # try:
-        #     yurifans(lock=lock)
-        #     logger.info('yurifans 执行成功')
-        # except Exception as e:
-        #     logger.error('yurifans 执行失败')
-        #     logger.error(e)
+        try:
+            yurifans_tools(lock=lock)
+            logger.info('yurifans 执行成功')
+        except Exception as e:
+            logger.error('yurifans 执行失败')
+            logger.error(e)
 
-        yurifans(lock=lock)
         time.sleep(3600)
+
+def abema_website(lock):
+    while True:
+        try:
+            abema_tools(lock=lock)
+            logger.info('abema 执行成功')
+        except Exception as e:
+            logger.error('abema 执行失败')
+            logger.error(e)
+
+        time.sleep(900)
 
 
 
@@ -35,13 +46,17 @@ if __name__ == '__main__':
 
     global_lock = threading.Lock()
     # japaneseasmr = threading.Thread(target=japaneseasmr_website, args=(global_lock,))
+    # yurifans = threading.Thread(target=yurifans_website, args=(global_lock,))
+    abema = threading.Thread(target=abema_website, args=(global_lock,))
 
-    yurifan = threading.Thread(target=yurifans_website, args=(global_lock,))
 
     #
     #
     # japaneseasmr.start()
-    yurifan.start()
+    # yurifans.start()
+    abema.start()
 
-    yurifan.join()
+
+    # yurifan.join()
     # japaneseasmr.join()
+    abema.join()

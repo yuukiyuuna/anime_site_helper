@@ -108,6 +108,7 @@ class japaneseasmr_tools():
         self.lock.acquire()
         try:
             telegram_api = telegram_tool()
+            message.reverse()       # 列表倒序
             # telegram_send = threading.Thread(target=telegram_api.send, args=(message, 'markdown'))
             telegram_api.send(message=message, parse_mode='markdown')
         except Exception as e:

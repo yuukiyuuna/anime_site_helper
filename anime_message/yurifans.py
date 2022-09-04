@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from bin.telegram_tools import telegram_tool
 
 
-def yurifans(lock):
+def yurifans_tools(lock):
     url = 'https://yuri.website/'
     result_json_path = r'./data/result.json'
     headers = {
@@ -74,19 +74,3 @@ def yurifans(lock):
         logger.error(e)
     lock.release()
 
-
-# async def sendmessage(token, chat_id, text):
-#     bot = telegram.Bot(token)
-#     async with bot:
-#         await bot.send_message(text=text, chat_id=chat_id)
-#
-#
-# if __name__ == '__main__':
-#     token = '5599701266:AAFbrRypK2lOL9of_yQzsJoTOY4cDURUSm8'
-#     chat_id = -1001592534864
-#
-#     message_list = yulifans()
-#     if len(message_list) != 0:
-#         for message in message_list:
-#             asyncio.run(sendmessage(token, chat_id, message))
-#             time.sleep(random.randint(2, 5))
