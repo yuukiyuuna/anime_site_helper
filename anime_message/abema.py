@@ -20,13 +20,13 @@ def abema_tools(lock):
     itemNext = 0
     final_signal = 0
     message = []
+    with FileLock(result_json_path + '.lock'):
+        new_last_update_time = last_update_time = json.loads(open(result_json_path, 'r',
+                                                                  encoding='utf-8').read())['abema']['last_update_time']
     while final_signal == 0:
         # 构建请求url
         path = '/v1/modules/CVX74spj9VVV59?itemLimit=%d&itemNext=%d' %(limit, itemNext)
         url = new_url + path
-        with FileLock(result_json_path + '.lock'):
-            new_last_update_time = last_update_time = json.loads(open(result_json_path, 'r',
-                                                                      encoding='utf-8').read())['abema']['last_update_time']
 
         message_count = len(message)
         req = requests.get(url, headers=headers)
