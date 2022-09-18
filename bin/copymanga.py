@@ -194,7 +194,18 @@ class copymanga():
     def download_page(self, url, filepath):
         try:
             req = requests.get(url, headers=self.headers, verify=False)  # 关闭证书验证
-            open(filepath, 'wb').write(req.content)
+            if req.status_code == 200:
+                open(filepath, 'wb').write(req.content)
+                if os.path.exists(filepath):
+                    if int(os.path.getsize(filepath)) != int(req.headers.get('content-length')):
+                        logger.warning('下载图片失败')
+                        self.download_page(url=url, filepath=filepath)
+                else:
+                    logger.warning('文件不存在，重新下载')
+                    self.download_page(url=url, filepath=filepath)
+            else:
+                logger.warning('下载图片失败，返回码 %d' %req.status_code)
+                self.download_page(url=url, filepath=filepath)
         except Exception as e:
             logger.warning('下载图片失败，一秒后重试')
             logger.error(e)

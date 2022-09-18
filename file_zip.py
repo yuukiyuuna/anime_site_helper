@@ -15,7 +15,6 @@ def zip_file(src_dir, save_name='default', save_dir='./'):
             zip_name = os.path.join(save_dir, src_dir + '.zip')
         else:
             zip_name = os.path.join(save_dir, save_name + '.zip')
-    print(zip_name)
 
     z = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
     for dirpath, dirnames, filenames in os.walk(src_dir):
@@ -28,12 +27,12 @@ def zip_file(src_dir, save_name='default', save_dir='./'):
 
 
 
-dir = r'F:\linshi\test'
+dir = r'F:\linshi\dianjuren'
 
 files = os.listdir(dir)
 
 for file in files:
-    zip_file(os.path.join(dir, file), save_name=file, save_dir=dir)
+    zip_file(os.path.join(dir, file), save_name=file, save_dir='E:\临时\电锯人')
     # os.rename(file + r'.zip', file + r'.cbz')
 
 
