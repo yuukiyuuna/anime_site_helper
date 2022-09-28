@@ -15,7 +15,7 @@ class japaneseasmr_tools():
         }
         self.result_json_path = './data/result.json'
         self.asmr_json_path = './data/japaneseasmr.logs'
-        self.asmr_save_dir = r'E:\1download\tmp'
+        self.asmr_save_dir = r'E:\临时\tmp'
         self.lock = lock
         # 判断文件是否存在
         if not os.path.exists(self.asmr_json_path):
@@ -106,11 +106,11 @@ class japaneseasmr_tools():
         #
         #         open(self.asmr_json_path, 'w', encoding='utf-8').write(json.dumps(file_data_json))
 
-    def video_download(self, url, referer, file_name, save_dir=None):
+    def video_download(self, url, referer, file_name, file_type='', save_dir=None):
         if save_dir is None:
-            file_full_path = os.path.join(os.getcwd(), file_name + '.mp3')
+            file_full_path = os.path.join(os.getcwd(), file_name + file_type)
         else:
-            file_full_path= os.path.join(save_dir, file_name + '.mp3')
+            file_full_path= os.path.join(save_dir, file_name + file_type)
         logger.info('开始下载音频 %s' %url)
         headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
@@ -313,10 +313,17 @@ class japaneseasmr_tools():
             if not os.path.exists(os.path.join(self.asmr_save_dir, rj_code)):
                 os.mkdir(os.path.join(self.asmr_save_dir, rj_code))
 
+            # 下载对应图片
+            for img_url in vaules['imgs']:
+                self.video_download(url=img_url, referer=vaules['page_url'],
+                                        file_name=img_url.split('/')[-1].strip(),
+                                        save_dir=os.path.join(self.asmr_save_dir, rj_code))
+
+            # 下载音频
             # 因为有的mp3下载链接不止一个
             for mp3_name, mp3_url in vaules['mp3'].items():
-                self.video_download(url=mp3_url, referer=vaules['page_url'], file_name=mp3_name,
-                                    save_dir=os.path.join(self.asmr_save_dir, rj_code))
+                self.video_download(url=mp3_url, referer=vaules['page_url'], file_name=mp3_name.strip(),
+                                    file_type='.mp3', save_dir=os.path.join(self.asmr_save_dir, rj_code))
 
 
 
