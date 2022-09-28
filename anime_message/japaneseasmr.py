@@ -49,7 +49,7 @@ class japaneseasmr_tools():
         mp3_url_list = []
         for name in soup.select('div[id="audioplayer"] p'):
             if name:
-                name_list.append(name.get_text())
+                name_list.append(name.get_text().strip())
         for mp3_url in soup.select('audio[controlslist="nodownload"] source'):
             if mp3_url:
                 mp3_url_list.append(mp3_url.get('src'))
