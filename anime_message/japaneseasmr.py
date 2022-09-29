@@ -264,6 +264,10 @@ class japaneseasmr_tools():
                             title = info.select('p[style="text-align: center;"]')[0].get_text()
                             cv = info.select('p[style="text-align: center;"]')[1].get_text()
                             rj_code = info.select('p[style="text-align: center;"]')[2].get_text()
+                        elif len(info.select('p[style="text-align: center;"]')) == 4:
+                            title = info.select('p[style="text-align: center;"]')[1].get_text()
+                            cv = info.select('p[style="text-align: center;"]')[2].get_text()
+                            rj_code = info.select('p[style="text-align: center;"]')[3].get_text()
                         else:
                             title = info.select('h2[class="entry-title"]')[0].get_text()
                             cv = info.select('p[style="text-align: center;"]')[0].get_text()
@@ -314,9 +318,14 @@ class japaneseasmr_tools():
                 os.mkdir(os.path.join(self.asmr_save_dir, rj_code))
 
             # 下载对应图片
-            for img_url in vaules['imgs']:
-                self.video_download(url=img_url, referer=vaules['page_url'],
+            if vaules['imgs']:
+                for img_url in vaules['imgs']:
+                    self.video_download(url=img_url, referer=vaules['page_url'],
                                         file_name=img_url.split('/')[-1].strip(),
+                                        save_dir=os.path.join(self.asmr_save_dir, rj_code))
+                else:
+                    self.video_download(url=vaules['cover'], referer=vaules['page_url'],
+                                        file_name=vaules['cover'].split('/')[-1].strip(),
                                         save_dir=os.path.join(self.asmr_save_dir, rj_code))
 
             # 下载音频
